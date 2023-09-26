@@ -29,6 +29,6 @@ class LogActivityController extends Controller
             ];
             return response()->json($response,$response['status']);
         } // ini coment
-        // ini coment 2
+        // ini coment 2git 
     }
 }
