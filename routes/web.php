@@ -20,6 +20,7 @@ $router->get('/', function () use ($router) {
 });
 
 
+$router->get('user', 'AuthController@getUser');
 $router->post('register', 'AuthController@register');
 $router->post('login', 'AuthController@login');
 $router->post('logout', 'AuthController@logout');

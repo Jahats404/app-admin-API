@@ -15,10 +15,11 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function register(Request $request){
+    public function register(Request $request)
+    {
 
         $input = $request->all();
-        
+
         $validator = Validator::make($input, [
             'email' => 'required|email',
             'password' => 'required',
@@ -37,7 +38,7 @@ class AuthController extends Controller
                 'status' => 401,
                 'message' => 'Error',
                 'error' => $validator->errors(),
-            ],401);
+            ], 401);
         }
 
         unset($input['confirm_password']);
@@ -48,24 +49,25 @@ class AuthController extends Controller
         $response['token'] = $query->createToken('users')->accessToken;
         $response['email'] = $query->email;
 
-        return response()->json($response, 200);
+        return response()->json($response, 201);
     }
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
 
         $input = $request->all();
-        
+
         $validator = Validator::make($input, [
             'username' => 'required',
             'password' => 'required'
-        ]); 
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'status' => 500,
                 'message' => 'Error',
                 'error' => $validator->errors(),
-            ],401);
+            ], 401);
         }
 
         $attemptsKey = 'login_attemps_' . $input['username'];
@@ -77,27 +79,27 @@ class AuthController extends Controller
                 'pesan' => 'Anda telah mencapai batas kesalahan Login'
             ];
 
-            return response()->json($response,429);
+            return response()->json($response, 429);
         }
-        
+
         $check_users = User::where('username', '=', $input['username'])->first();
         $userId = DB::table('users')
-                ->select('id')
-                ->where('username', '=', $input['username'])
-                ->get();
+            ->select('id')
+            ->where('username', '=', $input['username'])
+            ->get();
 
         if ($check_users) {
-            
+
             $password = $input['password'];
 
             if (Hash::check($password, $check_users['password'])) {
-                
+
                 $response['token'] = $check_users->createToken('users')->accessToken;
                 $response['status'] = 200;
                 $response['message'] = 'Berhasil Login';
 
                 Cache::forget($attemptsKey);
-                
+
 
                 $log = new Logactivity();
                 $log->user_id = $userId[0]->id;
@@ -105,9 +107,8 @@ class AuthController extends Controller
                 $log->notes = 'Berhasil Login';
                 $log->save();
 
-                return response()->json($response,200);
-            }
-            else{
+                return response()->json($response, 200);
+            } else {
 
                 $response = [
                     'status' => 401,
@@ -115,11 +116,10 @@ class AuthController extends Controller
                 ];
 
                 Cache::put($attemptsKey, $attempts + 1, Carbon::now()->addMinutes(1));
-                
-                return response()->json($response,401);
+
+                return response()->json($response, 401);
             }
-        }
-        else {
+        } else {
             $response['status'] = 401;
             $response['message'] = 'Gagal Login';
 
@@ -129,11 +129,28 @@ class AuthController extends Controller
         }
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
 
         $request->user()->token()->delete();
         return response()->json([
             'pesan' => 'User Berhasil Logout'
-        ],200);
+        ], 200);
+    }
+
+    public function getUser()
+    {
+        $query = User::all();
+
+
+        // $response['email'] = $query->email;
+
+        $response = [
+            'status' => 200,
+            'pesan' => 'Ok',
+            'data' => $query->toArray(),
+        ];
+
+        return response()->json($response, $response['status']);
     }
 }
