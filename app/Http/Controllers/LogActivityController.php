@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Logactivity;
+use Illuminate\Support\Facades\DB;
 
 class LogActivityController extends Controller
 {
     public function log_show(){
         try {
             $cekIdUser = auth()->user()->id;
-            $query = Logactivity::where('user_id', $cekIdUser)->get();
+            $query = DB::table('log_activity')
+            ->where('user_id', $cekIdUser)
+            ->get();
             
             $response = [
                 'status' => 200,
