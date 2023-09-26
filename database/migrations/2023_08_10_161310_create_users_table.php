@@ -17,7 +17,12 @@ return new class extends Migration
             $table->bigIncrements('id')->unsigned();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('level');
+            $table->string('nama_lengkap');
+            $table->string('username');
+            $table->string('divisi');
+            $table->string('no_hp');
+            $table->string('jenis_kelamin');
+            $table->text('alamat');
             $table->timestamps();
         });
     }

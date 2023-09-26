@@ -17,12 +17,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $fillable = [
-        'email',
-        'password',
-        'confirm_password',
-        'level'
-    ];
+    protected $guarded = [];
     public $timestamps = true;
 
     public function Logactivity(){

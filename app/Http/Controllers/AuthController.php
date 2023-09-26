@@ -22,8 +22,13 @@ class AuthController extends Controller
         $validator = Validator::make($input, [
             'email' => 'required|email',
             'password' => 'required',
+            'nama_lengkap' => 'required',
+            'username' => 'required',
+            'divisi' => 'required',
+            'no_hp' => 'required',
+            'jenis_kelamin' => 'required',
+            'alamat' => 'required',
             'confirm_password' => 'required|same:password',
-            'level' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -42,7 +47,6 @@ class AuthController extends Controller
 
         $response['token'] = $query->createToken('users')->accessToken;
         $response['email'] = $query->email;
-        $response['level'] = $query->level;
 
         return response()->json($response, 200);
     }
@@ -52,7 +56,7 @@ class AuthController extends Controller
         $input = $request->all();
         
         $validator = Validator::make($input, [
-            'email' => 'required|email',
+            'username' => 'required',
             'password' => 'required'
         ]); 
 
@@ -64,7 +68,7 @@ class AuthController extends Controller
             ],401);
         }
 
-        $attemptsKey = 'login_attemps_' . $input['email'];
+        $attemptsKey = 'login_attemps_' . $input['username'];
         $attempts = Cache::get($attemptsKey, 0);
 
         if ($attempts >= 3) {
@@ -76,10 +80,10 @@ class AuthController extends Controller
             return response()->json($response,429);
         }
         
-        $check_users = User::where('email', '=', $input['email'])->first();
+        $check_users = User::where('username', '=', $input['username'])->first();
         $userId = DB::table('users')
                 ->select('id')
-                ->where('email', '=', $input['email'])
+                ->where('username', '=', $input['username'])
                 ->get();
 
         if ($check_users) {
