@@ -29,5 +29,6 @@ class LogActivityController extends Controller
             ];
             return response()->json($response,$response['status']);
         } // ini coment
+        // ini coment 2
     }
 }
