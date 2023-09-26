@@ -27,6 +27,6 @@ class LogActivityController extends Controller
                 'message' => 'fail',
             ];
             return response()->json($response,$response['status']);
-        }
+        } // ini coment
     }
 }
