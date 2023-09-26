@@ -25,10 +25,16 @@ class LogActivityController extends Controller
             $response = [
                 'status' => 500,
                 'message' => 'fail',
-                // test
+
+
+                // test branch
+                // test branch 2
+
             ];
             return response()->json($response,$response['status']);
         } // ini coment
         // ini coment 2git 
+        // ini coment 2
+        
     }
 }
