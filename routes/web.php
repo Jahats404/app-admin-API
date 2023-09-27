@@ -32,5 +32,6 @@ $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($rout
         $router->get('/', 'BookController@book_show');
         $router->post('/', 'BookController@book_store');
         $router->get('/logactivity', 'LogActivityController@log_show');
+        $router->get('/komship', 'LogActivityController@komship');
     });
 });

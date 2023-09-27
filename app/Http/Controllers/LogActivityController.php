@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Logactivity;
 use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
 
 class LogActivityController extends Controller
 {
@@ -29,5 +30,18 @@ class LogActivityController extends Controller
             ];
             return response()->json($response, $response['status']);
         }
+    }
+
+    public function komship(){
+        $token = "GATEWAYKOMSHIPKOMERCE";
+        $client = new Client();
+        $response = $client->get('https://dev.komship.komerce.my.id/api/v2/admin/order/search?search=KOM23091178316541', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+            ],
+        ]);
+        $data = $response->getBody()->getContents();
+        $jsonData = json_decode($data, true);
+        return $jsonData;
     }
 }
