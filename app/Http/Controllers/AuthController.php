@@ -33,7 +33,6 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-
             return response()->json([
                 'status' => 401,
                 'message' => 'Error',
@@ -54,7 +53,6 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-
         $input = $request->all();
 
         $validator = Validator::make($input, [
@@ -78,7 +76,6 @@ class AuthController extends Controller
                 'status' => 429,
                 'pesan' => 'Anda telah mencapai batas kesalahan Login'
             ];
-
             return response()->json($response, 429);
         }
 
@@ -89,7 +86,6 @@ class AuthController extends Controller
             ->get();
 
         if ($check_users) {
-
             $password = $input['password'];
 
             if (Hash::check($password, $check_users['password'])) {
@@ -100,7 +96,6 @@ class AuthController extends Controller
 
                 Cache::forget($attemptsKey);
 
-
                 $log = new Logactivity();
                 $log->user_id = $userId[0]->id;
                 $log->activity = 'Login';
@@ -109,14 +104,11 @@ class AuthController extends Controller
 
                 return response()->json($response, 200);
             } else {
-
                 $response = [
                     'status' => 401,
                     'pesan' => 'Password Salah'
                 ];
-
                 Cache::put($attemptsKey, $attempts + 1, Carbon::now()->addMinutes(1));
-
                 return response()->json($response, 401);
             }
         } else {
@@ -131,7 +123,6 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-
         $request->user()->token()->delete();
         return response()->json([
             'pesan' => 'User Berhasil Logout'
@@ -141,10 +132,6 @@ class AuthController extends Controller
     public function getUser()
     {
         $query = User::all();
-
-
-        // $response['email'] = $query->email;
-
         $response = [
             'status' => 200,
             'pesan' => 'Ok',

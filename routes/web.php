@@ -25,10 +25,10 @@ $router->post('register', 'AuthController@register');
 $router->post('login', 'AuthController@login');
 $router->post('logout', 'AuthController@logout');
 
-$router->group(['prefix' => 'book', 'middleware' => 'auth'], function() use($router){
+$router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($router){
     $router->group(['middleware' => 'user'], function() use($router) {
         $router->get('/profile/detail', 'UserController@show_profile');
-        $router->post('/profile/update-password', 'UserController@update_password');
+        $router->put('/profile/update-password', 'UserController@update_password');
         $router->get('/', 'BookController@book_show');
         $router->post('/', 'BookController@book_store');
         $router->get('/logactivity', 'LogActivityController@log_show');
