@@ -25,6 +25,7 @@ $router->post('register', 'AuthController@register');
 $router->post('login', 'AuthController@login');
 $router->post('logout', 'AuthController@logout');
 
+
 $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($router){
     $router->group(['middleware' => 'user'], function() use($router) {
         $router->get('/profile/detail', 'UserController@show_profile');
