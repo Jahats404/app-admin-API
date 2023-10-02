@@ -36,17 +36,6 @@ class LogActivityController extends Controller
 
     public function komship(Request $request)
     {
-        // $token = "GATEWAYKOMSHIPKOMERCE";
-        // $client = new Client();
-        // $response = $client->get("https://dev.komship.komerce.my.id/api/v2/admin/order/search?search={$request}", [
-        //     'headers' => [
-        //         'Authorization' => 'Bearer ' . $token,
-        //     ],
-        // ]);
-        // $data = $response->getBody()->getContents();
-        // $jsonData = json_decode($data, true);
-        // return $jsonData;
-
         $token = "GATEWAYKOMSHIPKOMERCE";
 
         try {
@@ -58,29 +47,22 @@ class LogActivityController extends Controller
                     'Authorization' => 'Bearer ' . $token,
                 ],
             ]);
-            
+
             $user = User::findOrFail(auth()->user()->id);
-            if($user){
+            if ($user) {
                 $username = $user->username;
                 $userId = $user->id;
-                // dd($username);
 
                 $userId = DB::table('users')
-                ->select('id')
-                ->where('username', '=', $username)
-                ->get();
+                    ->select('id')
+                    ->where('username', '=', $username)
+                    ->get();
 
                 $log = new Logactivity();
                 $log->user_id = $userId[0]->id;
                 $log->activity = 'Cek Resi';
                 $log->notes = 'Berhasil Cek Resi';
                 $log->save();
-
-                
-            }
-            else {
-                // Pengguna belum login, berikan pesan kesalahan atau tindakan lain yang sesuai
-                return ['error' => 'Pengguna belum login'];
             }
 
             $data = $response->getBody()->getContents();
