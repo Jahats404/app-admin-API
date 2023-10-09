@@ -118,9 +118,20 @@ class UserController extends Controller
                         'message' => 'No Hp sama dengan sebelumnya',
                     ];
                 } else {
-                    $user->update([
-                        'no_hp' => $request->no_hp
-                    ]);
+                    $noHp = $request->no_hp;
+                    $firstDigit = substr($noHp, 0 ,1);
+                    if ($firstDigit == "0") {
+                        $nohpFix = $noHp;
+                        $user->update([
+                            'no_hp' => $nohpFix
+                        ]);
+                    }
+                    else {
+                        $nohpFix = "0" . $noHp;
+                        $user->update([
+                            'no_hp' => $nohpFix
+                        ]);
+                    }
                     $response = [
                         'status' => 200,
                         'message' => 'No Hp berhasil diupdate',

@@ -49,17 +49,11 @@ class LogActivityController extends Controller
             ]);
 
             $user = User::findOrFail(auth()->user()->id);
+            $id = auth()->user()->id;
             if ($user) {
-                $username = $user->username;
-                $userId = $user->id;
-
-                $userId = DB::table('users')
-                    ->select('id')
-                    ->where('username', '=', $username)
-                    ->get();
-
+                
                 $log = new Logactivity();
-                $log->user_id = $userId[0]->id;
+                $log->user_id = $id;
                 $log->activity = 'Cek Resi';
                 $log->notes = 'Berhasil Cek Resi';
                 $log->save();
