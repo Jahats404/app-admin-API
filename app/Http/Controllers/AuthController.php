@@ -80,7 +80,6 @@ class AuthController extends Controller
         }
 
         $check_users = User::where('username', '=', $input['username'])->first();
-
         $userId = DB::table('users')
             ->select('id')
             ->where('username', '=', $input['username'])

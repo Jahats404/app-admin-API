@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -57,6 +58,76 @@ class UserController extends Controller
                 ];
                 return response()->json($response, $response['status']);
             }
+        } catch (\Throwable $th) {
+            $response = [
+                'status' => 500,
+                'message' => 'fail',
+            ];
+            return response()->json($response, $response['status']);
+        }
+    }
+
+    public function get_noHp(Request $request)
+    {
+        $input = $request->all();
+        $user = auth()->user()->email;
+        // dd($user);
+        $validator = Validator::make($input, [
+            'email' => 'required|email|in:' . $user,
+        ]);
+
+        if ($validator->fails()) {
+            $response = [
+                'status' => 404,
+                'message' => 'email tidak sama',
+            ];
+        } else {
+            $check_user = User::where('email', '=', $input['email'])->first();
+
+            if ($check_user) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Ok',
+                    'data' => [
+                        'email' => $check_user->email,
+                        'no Hp' => $check_user->no_hp,
+                    ],
+                ];
+            }
+        }
+        return response()->json($response, $response['status']);
+    }
+
+    public function update_nohp(Request $request)
+    {
+        try {
+            $user = User::findOrFail(auth()->user()->id);
+            $validator = Validator::make($request->all(), [
+                'no_hp' => 'required|numeric|digits_between:10,13|unique:users,no_hp,' . $user->id,
+            ]);
+            if ($validator->fails()) {
+                $response = [
+                    'status' => 400,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors(),
+                ];
+            } else {
+                if ($user->no_hp === $request->no_hp) {
+                    $response = [
+                        'status' => 400,
+                        'message' => 'No Hp sama dengan sebelumnya',
+                    ];
+                } else {
+                    $user->update([
+                        'no_hp' => $request->no_hp
+                    ]);
+                    $response = [
+                        'status' => 200,
+                        'message' => 'No Hp berhasil diupdate',
+                    ];
+                }
+            }
+            return response()->json($response, $response['status']);
         } catch (\Throwable $th) {
             $response = [
                 'status' => 500,
