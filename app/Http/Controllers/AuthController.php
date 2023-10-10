@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Lumen\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
 
 class AuthController extends Controller
 {
@@ -140,4 +143,93 @@ class AuthController extends Controller
 
         return response()->json($response, $response['status']);
     }
+
+    public function sendVerifyEmail(Request $request)
+    {
+        if (auth()->user()) {
+            $email = $request->email;
+            $user = User::where('email', $email)->get();
+            $cekVerify = DB::table('users')
+                        ->select('email_verified_at')
+                        ->where('email',$email)
+                        ->get();
+            
+            if (count($user) > 0) {
+
+                if ($cekVerify[0]->email_verified_at != null) {
+                    $response = [
+                        'status' => 401,
+                        'message' => 'email has been verified',
+                    ];
+                    return response()->json($response,$response['status']);
+                } 
+                else {
+                    $random = Str::random(40);
+                    $domain = URL::to('/');
+                    $url = $domain . '/app/verify-mail/' . $random;
+    
+                    $data['url'] = $url;
+                    $data['email'] = $email;
+                    $data['title'] = "Email Verification";
+                    $data['body'] = "Please click here to below to verify your Mail.";
+    
+                    Mail::send('verifyEmail', ['data' => $data], function($message) use ($data){
+                        $message->to($data['email'])->subject($data['title']);
+                    });
+    
+                    $user = User::find($user[0]['id']);
+                    $user->remember_token = $random;
+                    $user->save();
+    
+                    $response = [
+                        'status' => 200,
+                        'message' => 'Mail sent successfull',
+                    ];
+                    return response()->json($response,$response['status']);
+                }
+                
+
+            } else {
+                $response = [
+                    'status' => 404,
+                    'message' => 'Email not found',
+                ];
+                return response()->json($response,$response['status']);
+            }
+            
+        }
+        else {
+            $response = [
+                'status' => 401,
+                'message' => 'unauthorized',
+            ];
+            return response()->json($response,$response['message']);
+        }
+    }
+
+    public function verificationMail($token)
+    {
+        $user = User::where('remember_token',$token)->get();
+        if (count($user) > 0) {
+            $datetime = Carbon::now()->format('Y-m-d H:i:s');
+            $user = User::find($user[0]['id']);
+            $user->remember_token = '';
+            $user->email_verified_at = $datetime;
+            $user->save();
+
+            $response = [
+                'status' => 200,
+                'message' => 'Email verified successfully.',
+            ];
+            return response()->json($response,$response['status']);
+        } else {
+            $response = [
+                'status' => 404,
+                'message' => 'Not Found.',
+            ];
+            return response()->json($response,$response['status']);
+        }
+        
+    }
+
 }

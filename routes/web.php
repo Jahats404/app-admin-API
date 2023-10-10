@@ -36,5 +36,7 @@ $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($rout
         $router->get('/komship', 'LogActivityController@komship');
         $router->get('/get-noHp', 'UserController@get_noHp');
         $router->post('/update-noHp', 'UserController@update_noHp');
+        $router->post('/send-verify-mail', 'AuthController@sendVerifyEmail');
+        $router->get('/verify-mail/{token}', 'AuthController@verificationMail');
     });
 });
