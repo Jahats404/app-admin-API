@@ -31,6 +31,7 @@ $router->post('reset-password', 'AuthController@resetPassword');
 
 $router->post('logout', 'AuthController@logout');
 
+$router->get('/verify-mail/{token}', 'AuthController@verificationMail');
 
 $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($router){
     $router->group(['middleware' => 'user'], function() use($router) {
@@ -43,6 +44,5 @@ $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($rout
         $router->get('/get-noHp', 'UserController@get_noHp');
         $router->post('/update-noHp', 'UserController@update_noHp');
         $router->post('/send-verify-mail', 'AuthController@sendVerifyEmail');
-        $router->get('/verify-mail/{token}', 'AuthController@verificationMail');
     });
 });

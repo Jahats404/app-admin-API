@@ -168,6 +168,7 @@ class AuthController extends Controller
                     $random = Str::random(40);
                     $domain = URL::to('/');
                     $url = $domain . '/app/verify-mail/' . $random;
+                    
     
                     $data['url'] = $url;
                     $data['email'] = $email;
