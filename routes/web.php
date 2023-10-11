@@ -22,7 +22,13 @@ $router->get('/', function () use ($router) {
 
 $router->get('user', 'AuthController@getUser');
 $router->post('register', 'AuthController@register');
+
 $router->post('login', 'AuthController@login');
+
+$router->post('forget-password', 'AuthController@forgetPassword');
+$router->get('reset-password', 'AuthController@resetPasswordLoad');
+$router->post('reset-password', 'AuthController@resetPassword');
+
 $router->post('logout', 'AuthController@logout');
 
 

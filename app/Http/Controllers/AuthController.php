@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Countable;
 use App\Models\User;
 use App\Models\Logactivity;
+use App\Models\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -232,4 +233,120 @@ class AuthController extends Controller
         
     }
 
+    public function forgetPassword(Request $request)
+    {
+        try {
+            
+            $user = User::where('email', $request->email)->get();
+            if (count($user) > 0) {
+                $token = Str::random(40);
+                $domain = URL::to('/');
+                $url = $domain . '/reset-password?token=' . $token;
+                
+                $data['url'] = $url;
+                $data['email'] = $request->email;
+                $data['title'] = "Password Reset";
+                $data['body'] = "Please click on below link to reset password";
+                
+                Mail::send('forgetPasswordMail', ['data' => $data], function($message) use ($data){
+                    $message->to($data['email'])->subject($data['title']);
+                });
+                $datetime = Carbon::now()->format('Y-m-d H:i:s');
+                
+                // $resetPw = PasswordReset::updateOrCreate(
+                //     ['email' => $request->email],
+                //     [
+                //         'email' => $request->email,
+                //         'token' => $token,
+                //         'created_at' => $datetime
+                //         ]
+                //     );
+                PasswordReset::updateOrCreate(
+                    [
+                        'email' => $request->email,
+                    ],
+                    [
+                        'email' => $request->email,
+                        'token' => $token,
+                        'created_at' => $datetime,
+                ]);
+
+                $response = [
+                    'status' => 200,
+                    'message' => 'Mail sent successfull, please check your email to reset password.',
+                ];
+                return response()->json($response,$response['status']);
+                
+            }
+            else {
+                $response = [
+                    'status' => 200,
+                    'message' => 'User Not Found',
+                ];
+                return response()->json($response,$response['status']);
+            }
+
+        } catch (\Throwable $e) {
+            $response = [
+                'status' => 500,
+                'message' => 'fail',
+            ];
+            return response()->json($response,$response['status']);
+        }
+    }
+
+    public function resetPasswordLoad(Request $request)
+    {
+        $resetData = PasswordReset::where('token',$request->token)->get();
+        if(isset($request->token) && count($resetData) > 0){
+
+            $user = User::where('email',$resetData[0]['email'])->get();
+            // return view('resetPassword',compact('user'));
+            $id = $user[0]['id'];
+            $response = [
+                'status' => 200,
+                'id user' => $id,
+                'message' => 'success',
+            ];
+            return response()->json($response,$response['status']);
+            
+        }
+        else {
+            $response = [
+                'status' => 404,
+                'message' => 'Not Found.',
+            ];
+            return response()->json($response,$response['status']);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'password' => 'required|min:8',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Error',
+                'error' => $validator->errors(),
+            ], 401);
+        }
+
+        $user = User::find($request->id);
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        PasswordReset::where('email',$user->email)->delete();
+
+        $response = [
+            'status' => 200,
+            'message' => 'your password has been reset successfully.',
+        ];
+        return response()->json($response,$response['status']);
+    }
 }
