@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Countable;
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\Logactivity;
 use App\Models\PasswordReset;
 use Illuminate\Http\Request;
@@ -167,8 +168,8 @@ class AuthController extends Controller
                 else {
                     $random = Str::random(40);
                     $domain = URL::to('/');
-                    $url = $domain . '/app/verify-mail/' . $random;
-                    
+                    $url = $domain . '/verify-mail/' . $random;
+
     
                     $data['url'] = $url;
                     $data['email'] = $email;
@@ -182,6 +183,13 @@ class AuthController extends Controller
                     $user = User::find($user[0]['id']);
                     $user->remember_token = $random;
                     $user->save();
+
+                    $id = auth()->user()->id;
+                    $log = new Logactivity();
+                        $log->user_id = $id;
+                        $log->activity = 'Verify Email';
+                        $log->notes = 'verification has been sent to the email ' . $email;
+                        $log->save();
     
                     $response = [
                         'status' => 200,
@@ -254,14 +262,6 @@ class AuthController extends Controller
                 });
                 $datetime = Carbon::now()->format('Y-m-d H:i:s');
                 
-                // $resetPw = PasswordReset::updateOrCreate(
-                //     ['email' => $request->email],
-                //     [
-                //         'email' => $request->email,
-                //         'token' => $token,
-                //         'created_at' => $datetime
-                //         ]
-                //     );
                 PasswordReset::updateOrCreate(
                     [
                         'email' => $request->email,
