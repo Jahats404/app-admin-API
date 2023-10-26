@@ -37,11 +37,16 @@ $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($rout
     $router->group(['middleware' => 'user'], function() use($router) {
         $router->get('/profile/detail', 'UserController@show_profile');
         $router->put('/profile/update-password', 'UserController@update_password');
+
         $router->get('/', 'BookController@book_show');
         $router->post('/', 'BookController@book_store');
+
         $router->get('/logactivity', 'LogActivityController@log_show');
         $router->get('/komship', 'LogActivityController@komship');
-        $router->get('/get-noHp', 'UserController@get_noHp');
+        $router->get('/logactivity/search', 'LogActivityController@search');
+        $router->get('/logactivity/search/detail', 'LogActivityController@filterSearch');
+
+        $router->post('/get-noHp', 'UserController@get_noHp');
         $router->post('/update-noHp', 'UserController@update_noHp');
         $router->post('/send-verify-mail', 'AuthController@sendVerifyEmail');
     });

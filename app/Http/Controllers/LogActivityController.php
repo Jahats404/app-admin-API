@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Logactivity;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,14 +16,29 @@ class LogActivityController extends Controller
     {
         try {
             $cekIdUser = auth()->user()->id;
-            $query = DB::table('log_activity')
-                ->where('user_id', $cekIdUser)
-                ->get();
+            $query = DB::table('log_activity')->get();
+            $jmlhData = $query->count();
 
+            for ($i=0; $i < $jmlhData; $i++) { 
+                $namaAdmin = DB::table('users')
+                            ->select('nama_lengkap')
+                            ->where('id', $query[$i]->user_id)
+                            ->get();
+                $data[] = [
+                    'id' => $query[$i]->id,
+                    'user_id' => $query[$i]->user_id,
+                    'nama_admin' => 'Admin ' . $namaAdmin[0]->nama_lengkap,
+                    'activity' => $query[$i]->activity,
+                    'notes' => $query[$i]->notes,
+                    'created_at' => $query[$i]->created_at,
+                    'updated_at' => $query[$i]->updated_at,
+                ];
+            }
+            
             $response = [
                 'status' => 200,
                 'message' => 'Ok',
-                'data' => $query->toArray(),
+                'data' => $data,
             ];
             return response()->json($response, $response['status']);
         } catch (\Throwable $th) {
@@ -48,17 +64,6 @@ class LogActivityController extends Controller
                 ],
             ]);
 
-            $user = User::findOrFail(auth()->user()->id);
-            $id = auth()->user()->id;
-            if ($user) {
-                
-                $log = new Logactivity();
-                $log->user_id = $id;
-                $log->activity = 'Cek Resi';
-                $log->notes = 'Berhasil Cek Resi';
-                $log->save();
-            }
-
             $data = $response->getBody()->getContents();
             $jsonData = json_decode($data, true);
 
@@ -70,5 +75,47 @@ class LogActivityController extends Controller
             ];
             return response()->json($response, $response['status']);
         }
+    }
+
+    public function search(Request $request)
+    {
+        try {
+            $nama = $request->input('search');
+            
+            $user = Logactivity::where('aktor', 'like', '%' . $nama . '%')->get();
+            $response = [
+                'status' => 200,
+                'message' => 'success',
+                'data' => $user->toArray(),
+            ];
+            return response()->json($response, $response['status']);
+            
+        } 
+        catch (\Throwable $e) {
+            $response = [
+                'status' => 500,
+                'message' => 'data tidak ditemukan',
+            ];
+            return response()->json($response, $response['status']);
+        }
+        
+    }
+
+    public function filterSearch(Request $request)
+    {
+        $activity = $request->input('activity');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $startCarbon = Carbon::parse($startDate);
+        $endCarbon = Carbon::parse($endDate);
+
+
+        $search = DB::table('log_activity')
+                ->where('activity', $activity)
+                ->whereDate('created_at', '>=', $startCarbon)
+                ->whereDate('created_at', '<=', $endCarbon)
+                ->get();
+        dd($search);
     }
 }

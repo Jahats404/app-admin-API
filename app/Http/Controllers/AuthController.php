@@ -103,6 +103,7 @@ class AuthController extends Controller
 
                 $log = new Logactivity();
                 $log->user_id = $userId[0]->id;
+                $log->aktor = $input['username'];
                 $log->activity = 'Login';
                 $log->notes = 'Berhasil Login';
                 $log->save();
@@ -185,10 +186,12 @@ class AuthController extends Controller
                     $user->save();
 
                     $id = auth()->user()->id;
+                    $namaAdmin = DB::table('users')->select('nama_lengkap')->where('id', $id)->get();
                     $log = new Logactivity();
                         $log->user_id = $id;
-                        $log->activity = 'Verify Email';
-                        $log->notes = 'verification has been sent to the email ' . $email;
+                        $log->activity = 'Kirim Ulang Verifikasi';
+                        $log->notes = $email;
+                        $log->aktor = $namaAdmin[0]->nama_lengkap;
                         $log->save();
     
                     $response = [

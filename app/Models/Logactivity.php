@@ -12,7 +12,7 @@ class Logactivity extends Model
     protected $guarded = ['id'];
     public $timestamps = true;
 
-    public function Users(){
+    public function users(){
         return $this->BelongsTo(Users::class,'user_id','id');
     }
 
