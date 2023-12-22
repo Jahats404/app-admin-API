@@ -31,7 +31,7 @@ $router->post('reset-password', 'AuthController@resetPassword');
 
 $router->post('logout', 'AuthController@logout');
 
-$router->get('/verify-mail/{token}', 'AuthController@verificationMail');
+// $router->get('/verify-mail/{token}', 'AuthController@verificationMail');
 
 $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($router){
     $router->group(['middleware' => 'user'], function() use($router) {
@@ -46,8 +46,10 @@ $router->group(['prefix' => 'app', 'middleware' => 'auth'], function() use($rout
         $router->get('/logactivity/search', 'LogActivityController@search');
         $router->get('/logactivity/search/detail', 'LogActivityController@filterSearch');
 
+        $router->post('/send-verify-mail', 'UserController@verifMail');
+
         $router->post('/get-noHp', 'UserController@get_noHp');
         $router->post('/update-noHp', 'UserController@update_noHp');
-        $router->post('/send-verify-mail', 'AuthController@sendVerifyEmail');
+        // $router->post('/send-verify-mail', 'AuthController@sendVerifyEmail');
     });
 });

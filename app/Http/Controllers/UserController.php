@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use App\Models\Logactivity;
+use GuzzleHttp\Client;
 
 
 class UserController extends Controller
@@ -158,5 +159,26 @@ class UserController extends Controller
             ];
             return response()->json($response, $response['status']);
         }
+    }
+
+    public function verifMail(Request $request) {
+
+        $client = new Client();
+        $email = $request->email;
+        $product_name = $request->product_name;
+        $data = [
+            "email" => $email,
+            "product_name" => $product_name,
+        ];
+
+        $response = $client->request("POST", "https://api.internal.komerce.my.id/auth/api/v1/auth/resend-verification", [
+            "json" => $data,
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        $body = $response->getBody()->getContents();
+        $jsonResponse = json_decode($body, true);
+        dd($jsonResponse);
+        
     }
 }

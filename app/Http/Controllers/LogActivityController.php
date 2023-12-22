@@ -103,19 +103,34 @@ class LogActivityController extends Controller
 
     public function filterSearch(Request $request)
     {
-        $activity = $request->input('activity');
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        try {
+            $activity = $request->input('activity');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
 
-        $startCarbon = Carbon::parse($startDate);
-        $endCarbon = Carbon::parse($endDate);
+            $startCarbon = Carbon::parse($startDate);
+            $endCarbon = Carbon::parse($endDate);
 
-
-        $search = DB::table('log_activity')
-                ->where('activity', $activity)
-                ->whereDate('created_at', '>=', $startCarbon)
-                ->whereDate('created_at', '<=', $endCarbon)
-                ->get();
-        dd($search);
+            $search = DB::table('log_activity')
+                    ->where('activity', $activity)
+                    ->whereDate('created_at', '>=', $startCarbon)
+                    ->whereDate('created_at', '<=', $endCarbon)
+                    ->get();
+            
+                $response = [
+                    'status' => 200,
+                    'message' => 'success',
+                    'data' => $search->toArray()
+                ];
+                return response()->json($response, $response['status']);
+        } 
+        catch (\Throwable $e) {
+            $response = [
+                'status' => 500,
+                'message' => 'fail'
+            ];
+            return response()->json($response, $response['status']);
+        }
+        
     }
 }
